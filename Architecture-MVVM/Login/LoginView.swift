@@ -6,9 +6,12 @@
 //
 
 import UIKit
+import Combine
 
 class LoginView: UIViewController {
     private let loginViewModel = LoginViewModel(apiClient: APIClient())
+    
+    var cancellables = Set<AnyCancellable>()
     
     private let emailTextField: UITextField = {
         let textfield = UITextField()
@@ -29,6 +32,7 @@ class LoginView: UIViewController {
     private lazy var loginButton: UIButton = {
         var configuration = UIButton.Configuration.filled()
         configuration.title = "Login"
+        configuration.imagePadding = 8
         
         let button = UIButton(type: .system, primaryAction: UIAction(handler: { [weak self] action in
             self?.startLogin()
@@ -40,6 +44,7 @@ class LoginView: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        createBindingViewWithViewModel()
         [emailTextField, passwordTextField, loginButton].forEach(view.addSubview)
         
         NSLayoutConstraint.activate([
@@ -64,5 +69,32 @@ class LoginView: UIViewController {
     }
     
     
+    func createBindingViewWithViewModel() {
+        emailTextField.textPublisher
+            .assign(to: \LoginViewModel.email, on: loginViewModel)
+            .store(in: &cancellables)
+        
+        passwordTextField.textPublisher
+            .assign(to: \LoginViewModel.password, on: loginViewModel)
+            .store(in: &cancellables)
+        
+        loginViewModel.$isButtonEnabled
+            .assign(to: \.isEnabled, on: loginButton)
+            .store(in: &cancellables)
+        
+        loginViewModel.$showLoading
+            .assign(to: \.configuration!.showsActivityIndicator, on: loginButton)
+            .store(in: &cancellables)
+    }
 }
 
+// Extension to publish a notification when value in textfield changes
+extension UITextField {
+    var textPublisher: AnyPublisher<String, Never> {
+        return NotificationCenter.default.publisher(for: UITextField.textDidChangeNotification, object: self)
+            .map { notification in
+                return (notification.object as? UITextField)?.text ?? ""
+            }
+            .eraseToAnyPublisher()
+    }
+}
