@@ -13,6 +13,8 @@ class LoginViewModel {
     @Published var password = ""
     @Published var isButtonEnabled = false
     @Published var showLoading = false
+    @Published var errorMessage = ""
+    @Published var userModel: User?
     
     var cancellables = Set<AnyCancellable>()
     
@@ -39,13 +41,16 @@ class LoginViewModel {
     @MainActor
     func userLogin(withEmail email: String,
                    password: String) {
-        // Task to execute async code
+        errorMessage = ""
         showLoading = true
+        
+        // Task to execute async code
         Task {
             do {
-                let userModel = try await apiClient.login(withEmail: email, password: password)
+                userModel = try await apiClient.login(withEmail: email, password: password)
             } catch let error as BackendError {
                 print(error.localizedDescription)
+                errorMessage = error.rawValue
             }
             showLoading = false
         }
