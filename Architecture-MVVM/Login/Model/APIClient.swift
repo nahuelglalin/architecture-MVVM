@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum BakendError: String, Error {
+enum BackendError: String, Error {
     case invalidEmail = "Incorrect email"
     case invalidPassword = "Incorrect Password"
 }
@@ -22,13 +22,13 @@ final class APIClient {
 
 func simulateBackendLogic(email: String, password: String) throws -> User {
     guard email == "nahuelglalin@gmail.com" else {
-        print(BakendError.invalidEmail)
-        throw BakendError.invalidEmail
+        print(BackendError.invalidEmail)
+        throw BackendError.invalidEmail
     }
     
     guard password == "1234" else {
-        print(BakendError.invalidPassword)
-        throw BakendError.invalidPassword
+        print(BackendError.invalidPassword)
+        throw BackendError.invalidPassword
     }
     
     print("Success")

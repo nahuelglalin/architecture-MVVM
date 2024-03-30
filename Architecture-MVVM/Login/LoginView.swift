@@ -8,12 +8,61 @@
 import UIKit
 
 class LoginView: UIViewController {
-
+    private let loginViewModel = LoginViewModel(apiClient: APIClient())
+    
+    private let emailTextField: UITextField = {
+        let textfield = UITextField()
+        textfield.placeholder = "Add Email"
+        textfield.borderStyle = .roundedRect
+        textfield.translatesAutoresizingMaskIntoConstraints = false
+        return textfield
+    }()
+    
+    private let passwordTextField: UITextField = {
+        let textfield = UITextField()
+        textfield.placeholder = "Add Password"
+        textfield.borderStyle = .roundedRect
+        textfield.translatesAutoresizingMaskIntoConstraints = false
+        return textfield
+    }()
+    
+    private lazy var loginButton: UIButton = {
+        var configuration = UIButton.Configuration.filled()
+        configuration.title = "Login"
+        
+        let button = UIButton(type: .system, primaryAction: UIAction(handler: { [weak self] action in
+            self?.startLogin()
+        }))
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.configuration = configuration
+        return button
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        [emailTextField, passwordTextField, loginButton].forEach(view.addSubview)
+        
+        NSLayoutConstraint.activate([
+            emailTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            emailTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
+            emailTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
+            emailTextField.bottomAnchor.constraint(equalTo: passwordTextField.topAnchor, constant: -20),
+            
+            passwordTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            passwordTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
+            passwordTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
+            passwordTextField.bottomAnchor.constraint(equalTo: loginButton.topAnchor, constant: -20),
+            
+            loginButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            loginButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+        ])
     }
-
-
+    
+    private func startLogin() {
+        loginViewModel.userLogin(withEmail: emailTextField.text?.lowercased() ?? "",
+                                 password: passwordTextField.text?.lowercased() ?? "")
+    }
+    
+    
 }
 
